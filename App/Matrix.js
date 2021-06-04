@@ -1,3 +1,11 @@
+/**
+ * @author Linra Uziel
+ * @class Matrix
+ * @description This is a Matrix data structer
+ * @todo Matrix math (add,sub,mutltiply,dot, etc)
+ * @version 1.0.0
+ */
+
 class Matrix{
     //private - NEW in javascript (not fully suported);
     #rows = 0;
@@ -37,6 +45,14 @@ class Matrix{
     set highRange(_high){
         this.#high_range = _high;
     }
+    //private functions and methods
+    /**
+     * @name copyValue
+     * @param {Matrix} _newMatrix - A new matrix (target).
+     * @description The copyValue method take the self object(this) matrix value and copy them
+     * to the target matrix (newMatrix).
+     * @return none
+     */
     #copyValues(_newMatrix){
         for(let r = 0;r < this.#rows;r++)
         {
@@ -46,22 +62,58 @@ class Matrix{
         }
         _newMatrix.#mutrixEmpty = false;
     }
-    matrix(){
-        console.log(arguments.length);
-        for(let r = 0;r <arguments.length;r++){
-            if(!arguments[r] instanceof Array){
-               console.error(`'${arguments[r]}' is not an Array`);
-               return;
-            }
+    /**
+     * @name fillMatrixRow
+     * @param {Number}rowNumber - Row number to set the values.
+     * @param {Array}arryValues - Array of value to set the matrix values.
+     * @param {Matrix}_newMatrix - A new matrix (target).
+     * @description 
+     * @return none
+     */
+    static #fillMatrixRow(rowNumber,arryValues,_newMatrix){
+            for(let c = 0;c < arryValues.length;c++){
+                _newMatrix.#matrix[rowNumber][c] = arryValues[c];
         }
     }
-
+    #test(){
+        console.log("hello");
+    }
+    /**
+     * @name fillMatrixRow
+     * @argument {Array} arguments - the param come from arguments 
+     * @description Due to the use of arguments as the input we the function can generate
+     *              new Matrix from any number of arrays, one for each row.
+     * @return none
+     */
+    static matrixFromArray(){
+        let baseArraySize = arguments[0].length;
+        for(let r = 0;r <arguments.length;r++){
+            let currentArraySize = arguments[r].length;
+            if(currentArraySize != baseArraySize)
+            {
+                console.error(`'${arguments[r]}' is not an diffrent size`);
+                return;
+            }
+            if(!arguments[r] instanceof Array){
+                
+                console.error(`'${arguments[r]}' is not an Array`);
+                return;
+            }
+        }
+        let rows = arguments.length;
+        let columns = baseArraySize;
+        let newMatrix = new Matrix(rows,columns);
+        for(let r = 0;r < rows;r++){
+            this.#fillMatrixRow(r,arguments[r],newMatrix);
+        }
+        newMatrix.#mutrixEmpty = false;
+        return newMatrix;
+    }
+    //Public functions and methods    
     getSacle(){
         console.log(`This matrix is ${this.#rows} * ${this.#columns}`);
         return {rows:this.#rows,columns:this.#columns};
     }
-
-
     randomize(){
         for(let r = 0;r < this.#rows;r++)
         {
@@ -72,8 +124,6 @@ class Matrix{
         }
         this.#mutrixEmpty = false;
     }
-
-  
     print(){
         if(this.#mutrixEmpty){
             console.error("Matrix is empty");
@@ -89,7 +139,7 @@ class Matrix{
             rowString += "]";
             console.log(rowString);
         }
-
+        return 1; 
     }
     copy(){
         let newMatrix = new Matrix(this.#rows,this.#columns);
