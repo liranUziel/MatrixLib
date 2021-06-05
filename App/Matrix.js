@@ -8,30 +8,25 @@
 
 class Matrix{
     //private - NEW in javascript (not fully suported);
-    #rows = 0;
-    #columns = 0;
+    rows = 0;
+    columns = 0;
     #matrix;
     #mutrixEmpty = true;
     #low_range = 0;
     #high_range = 100;
     //public
-   
+    
     //constructor
     constructor(_rows,_columns){
-        this.#rows = _rows;
-        this.#columns = _columns;
+        this.rows = _rows;
+        this.columns = _columns;
         this.#matrix = new Array(_rows);
         for(let r = 0;r < _rows;r++){
             this.#matrix[r] = new Array(_columns);
         }
     }
     //getters
-    get rows(){
-        return this.#rows;
-    }
-    get columns(){
-        return this.#columns;
-    }
+
     get lowRange(){
         return this.#low_range;
     }
@@ -50,13 +45,13 @@ class Matrix{
      * @name copyValue
      * @param {Matrix} _newMatrix - A new matrix (target).
      * @description The copyValue method take the self object(this) matrix value and copy them
-     * to the target matrix (newMatrix).
+     * to the target matrix (newMatrix). NOTE: may be remove in the next update
      * @return none
      */
     #copyValues(_newMatrix){
-        for(let r = 0;r < this.#rows;r++)
+        for(let r = 0;r < this.rows;r++)
         {
-            for(let c = 0;c < this.#columns;c++){
+            for(let c = 0;c < this.columns;c++){
                 _newMatrix.#matrix[r][c] = this.#matrix[r][c];
             }
         }
@@ -78,6 +73,7 @@ class Matrix{
     #test(){
         console.log("hello");
     }
+    //Public functions and methods 
     /**
      * @name fillMatrixRow
      * @argument {Array} arguments - the param come from arguments 
@@ -85,6 +81,67 @@ class Matrix{
      *              new Matrix from any number of arrays, one for each row.
      * @return none
      */
+    
+    static #addRows(rowA,rowB,newRow){
+        const length = rowA.length;
+        for(let c = 0;c < length;c++){
+            newRow [c] = rowA[c] + rowB[c];
+        }
+    }
+    
+    static add(matrixA,matrixB){
+        let scaleA = matrixA.getSacle();
+        let scaleB = matrixB.getSacle();
+        if(scaleA["rows"] != scaleB["rows"] && scaleA["columns"] != scaleB["columns"]){
+            let errorMesseg = scaleA["rows"] != scaleB["rows"] ? "The number of rows are not muching" : "";
+            if(errorMesseg !== ""){
+                errorMesseg+= " and"
+            }
+            errorMesseg += scaleA["columns"] != scaleB["columns"] ? " The number of columns are not muching" : "";
+            console.error(errorMesseg);
+            return -1;
+        }
+        let newMatrix = new Matrix(scaleA["rows"],scaleA["columns"]);
+        const rowCount = scaleA["rows"];
+        for(let r = 0;r < rowCount;r++){
+            this.#addRows(matrixA.#matrix[r],matrixB.#matrix[r],newMatrix.#matrix[r]);
+        }
+        newMatrix.#mutrixEmpty = false;
+        return newMatrix;
+    }
+    static scalarMultiplication(matrix,Scalar){
+        let newMatrix = new Matrix(matrix.rows,matrix.columns);
+        for(let r = 0;r < matrix.rows;r++)
+        {
+            for(let c = 0;c < matrix.columns;c++){
+                newMatrix.#matrix[r][c] = matrix.#matrix[r][c] * Scalar;
+            }
+        }
+        return newMatrix;
+    }
+    static sub(matrixA,matrixB){
+        let scaleA = matrixA.getSacle();
+        let scaleB = matrixB.getSacle();
+        if(scaleA["rows"] != scaleB["rows"] && scaleA["columns"] != scaleB["columns"]){
+            let errorMesseg = scaleA["rows"] != scaleB["rows"] ? "The number of rows are not muching" : "";
+            if(errorMesseg !== ""){
+                errorMesseg+= " and"
+            }
+            errorMesseg += scaleA["columns"] != scaleB["columns"] ? " The number of columns are not muching" : "";
+            console.error(errorMesseg);
+            return -1;
+        }
+        let newMatrix = new Matrix(scaleA["rows"],scaleA["columns"]);
+        const rowCount = scaleA["rows"];
+        let negativeB = this.scalarMultiplication(matrixB,-1);
+        for(let r = 0;r < rowCount;r++){
+            this.#addRows(matrixA.#matrix[r],negativeB.#matrix[r],newMatrix.#matrix[r]);
+        }
+        newMatrix.#mutrixEmpty = false;
+        return newMatrix;
+    }
+
+
     static matrixFromArray(){
         let baseArraySize = arguments[0].length;
         for(let r = 0;r <arguments.length;r++){
@@ -92,12 +149,12 @@ class Matrix{
             if(currentArraySize != baseArraySize)
             {
                 console.error(`'${arguments[r]}' is not an diffrent size`);
-                return;
+                return -1;
             }
             if(!arguments[r] instanceof Array){
                 
                 console.error(`'${arguments[r]}' is not an Array`);
-                return;
+                return -1;
             }
         }
         let rows = arguments.length;
@@ -109,15 +166,15 @@ class Matrix{
         newMatrix.#mutrixEmpty = false;
         return newMatrix;
     }
-    //Public functions and methods    
+    
     getSacle(){
-        console.log(`This matrix is ${this.#rows} * ${this.#columns}`);
-        return {rows:this.#rows,columns:this.#columns};
+        //console.log(`This matrix is ${this.rows} * ${this.columns}`);
+        return {rows:this.rows,columns:this.columns};
     }
     randomize(){
-        for(let r = 0;r < this.#rows;r++)
+        for(let r = 0;r < this.rows;r++)
         {
-            for(let c = 0;c < this.#columns;c++){
+            for(let c = 0;c < this.columns;c++){
                 const value = Math.floor(Math.random() * (this.#high_range + 1 - this.#low_range)) + this.#low_range;
                 this.#matrix[r][c] = value;
             }
@@ -130,10 +187,10 @@ class Matrix{
             return -1;
         }
         let rowString;
-        for(let r = 0;r < this.#rows;r++)
+        for(let r = 0;r < this.rows;r++)
         {
             rowString = "[";
-            for(let c = 0;c < this.#columns;c++){
+            for(let c = 0;c < this.columns;c++){
                 rowString += c != 0 ? `,${this.#matrix[r][c]}` :`${this.#matrix[r][c]}`;
             }
             rowString += "]";
@@ -142,13 +199,13 @@ class Matrix{
         return 1; 
     }
     copy(){
-        let newMatrix = new Matrix(this.#rows,this.#columns);
+        let newMatrix = new Matrix(this.rows,this.columns);
         this.#copyValues(newMatrix);
         return newMatrix;
     }
     //copy constructor
     static copy(_matrix){
-        let newMatrix = new Matrix(_matrix.#rows,_matrix.#columns);
+        let newMatrix = new Matrix(_matrix.rows,_matrix.columns);
         _matrix.#copyValues(newMatrix);
         return newMatrix;
     }
